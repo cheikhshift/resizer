@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gos>
+	<!-- xml docs : http://golangserver.com/docs/markup.html -->
+	<deploy>package</deploy>
+	<package>resizer</package>
+	<import src="github.com/disintegration/imaging" />
+	<import src="strconv"/>
+	<var type="">( 
+			ShrinkPercent int = 30
+			MaxWidth int = 1000
+			MaxHeight int =  600
+			CacheFolder string = "./cache"
+		)</var>
+	<main>	
+	//psss go code here : func main()
+		if _, err := os.Stat(CacheFolder); os.IsNotExist(err) {
+			os.Mkdir(CacheFolder,0700)
+		}
+	</main>
+
+	<endpoints>
+  		<end path="" type="f" >
+  			if strings.Contains(r.URL.Path, ".png") || strings.Contains(r.URL.Path, ".jpg") && !strings.Contains(r.URL.Path, "/resize/") { 
+
+  				
+  				cacheref := fmt.Sprintf("%s/%s_autosized.jpg", CacheFolder,strings.TrimPrefix(strings.Replace(r.URL.Path, "/", ".", -1 ), "." ) )
+  				if _, err := os.Stat(cacheref); !os.IsNotExist(err)  {
+  					img,err := ioutil.ReadFile(cacheref)
+  					if err != nil {
+  						fmt.Println(err)
+  						return 
+  					}
+  					w.Header().Add("Content-Type","image/jpeg")
+					w.Write(img)
+					return true
+  				} else {
+	  				img, err := loadPage(r.URL.Path)
+	  				if err != nil {
+	  					return 
+	  				}
+
+	  				err = ioutil.WriteFile(cacheref, img.Body, 0700)
+					if err != nil {
+					  fmt.Println( err.Error())
+					  return 
+					}
+				
+					nimg, err := imaging.Open(cacheref)
+					if err != nil {
+						fmt.Println("Open failed: ", err.Error())
+					}
+					size :=  nimg.Bounds().Size()
+					if size.X > MaxWidth && (size.Y > MaxHeight || size.Y == 0) {
+					 // fmt.Println("The image size is valid")
+					  	newimage := imaging.Resize(nimg, size.X - ( (size.X*ShrinkPercent)/100 ), 0, imaging.Lanczos)
+					  	err = imaging.Save(newimage, cacheref)
+						if err != nil {
+							fmt.Println("Save failed: ", err.Error())
+							os.Remove(cacheref)
+							return 
+						}
+						
+						w.Header().Add("Content-Type","image/jpeg")
+						http.ServeFile(w, r, cacheref)
+					}
+
+					return true
+			}
+		}
+  	</end>
+  	<end path="/resize/" type="f" >
+  		settings := strings.Split(r.URL.Path, "/")
+  		if len(settings) >= 4 {
+  			width,_ := strconv.Atoi(settings[2])
+  			height,_ := strconv.Atoi(settings[3])
+  			imgpath := fmt.Sprintf("/%s", strings.Join(settings[4:],"/") )
+
+  			cacheref := fmt.Sprintf("%s/%s_size_%v_%v.jpg", CacheFolder, strings.TrimPrefix(strings.Replace(imgpath,"/", ".", -1 ) , "."), width,height)
+  				if _, err := os.Stat(cacheref); !os.IsNotExist(err)  {
+  					img,err := ioutil.ReadFile(cacheref)
+  					if err != nil {
+  						fmt.Println(err)
+  						return 
+  					}
+  					w.Header().Add("Content-Type","image/jpeg")
+					w.Write(img)
+					return true
+  				} else {
+	  				img, err := loadPage(imgpath)
+	  				if err != nil {
+	  					fmt.Println( err.Error())
+	  					return 
+	  				}
+	  				err = ioutil.WriteFile(cacheref, img.Body, 0700)
+					if err != nil {
+					  fmt.Println( err.Error())
+					  return 
+					}
+				
+					nimg, err := imaging.Open(cacheref)
+					if err != nil {
+						fmt.Println("Open failed: ", err.Error())
+					}
+					
+					  newimage := imaging.Resize(nimg, width,height, imaging.Lanczos)
+					  	err = imaging.Save(newimage, cacheref)
+						if err != nil {
+							fmt.Println("Save failed: ", err.Error())
+							os.Remove(cacheref)
+							return 
+						}
+						
+						w.Header().Add("Content-Type","image/jpeg")
+						http.ServeFile(w, r, cacheref)
+
+
+					return true
+			}
+
+  		} 
+
+  	</end>
+</endpoints>
+</gos>
