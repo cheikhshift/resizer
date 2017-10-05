@@ -38,7 +38,7 @@ Notes :
 
 	import "github.com/cheikhshift/resizer"
 
-Use the following function to resize and place in cache any image in your file system.
+Use the following function to resize and place in cache any image in your file system. Use the same function again to get the location of your file.
 
 	func ResizeAndCache(imgpath string, cache_folder string,width int , height int) (cache_ref string,err error)
 
