@@ -4,6 +4,7 @@
 	<deploy>package</deploy>
 	<package>resizer</package>
 	<import src="github.com/disintegration/imaging" />
+	<import src="io/ioutil" />
 	<import src="strconv"/>
 	<var type="">( 
 			ShrinkPercent int = 30
