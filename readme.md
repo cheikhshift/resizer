@@ -3,7 +3,7 @@
 Golangserver image resizer.
 
 ## Requirements
-- [golangserver.com](http://golangserver.com) aka GOS
+- [gophersauce.com](http://gophersauce.com) aka GOS
 
 ## How to install
 Add this import tag to your `.gxml` file :
