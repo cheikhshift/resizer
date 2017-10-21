@@ -1,6 +1,6 @@
 # Resizer
 
-Golangserver image resizer.
+GopherSauce image resizer.
 
 ## Requirements
 - [gophersauce.com](http://gophersauce.com) aka GOS
