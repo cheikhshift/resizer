@@ -27,7 +27,7 @@ You may also resize any image within your project's web root to your liking.
 
 #### Format
 
-	${protocol}://${hostname}/${resize}/${width}/${height}/${path}
+	${protocol}://${hostname}/resize/${width}/${height}/${path}
 
 Notes : 
 - The path variable is relative to your GOS project web root. For example to get a resized image in path `web/img/set/img.png` with dimensions 40x40 the URI would be : http://localhost/resize/40/40/img/set/img.png
