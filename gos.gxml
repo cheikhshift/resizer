@@ -107,10 +107,10 @@
 						}
 						
 	
-
+						w.Header().Add("Content-Type","image/jpeg")
 						http.ServeFile(w, r, cacheref)
 
-						w.Header().Add("Content-Type","image/jpeg")
+						
 						go gosweb.CacheFile(cacheref ,ImageCache)
 					}
 					//span.LogEvent("Image resizeD!")
